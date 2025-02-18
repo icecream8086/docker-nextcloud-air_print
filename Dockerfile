@@ -52,7 +52,9 @@ RUN \
     rsync \
     samba-client \
     util-linux \
-    sudo && \
+    sudo \
+    cups \
+    cups-client && \
   echo "**** configure php-fpm to pass env vars ****" && \
   sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php83/php-fpm.d/www.conf && \
   grep -qxF 'clear_env = no' /etc/php83/php-fpm.d/www.conf || echo 'clear_env = no' >> /etc/php83/php-fpm.d/www.conf && \
@@ -105,5 +107,7 @@ RUN \
 COPY root/ /
 
 # ports and volumes
-EXPOSE 80 443
+EXPOSE 80 443 631
 VOLUME /config
+VOLUME /var/spool/cups
+VOLUME /etc/cups
