@@ -54,6 +54,10 @@ RUN \
     util-linux \
     sudo \
     cups \
+    avahi \
+     dbus \
+     s6 \
+     shadow \
     cups-client && \
   echo "**** configure php-fpm to pass env vars ****" && \
   sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php83/php-fpm.d/www.conf && \
@@ -102,6 +106,8 @@ RUN \
   echo "**** cleanup ****" && \
   rm -rf \
     /tmp/*
+  
+    
 
 # copy local files
 COPY root/ /
@@ -111,3 +117,4 @@ EXPOSE 80 443 631
 VOLUME /config
 VOLUME /var/spool/cups
 VOLUME /etc/cups
+
