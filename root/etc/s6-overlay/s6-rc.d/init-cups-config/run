@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Set environment variables (adjust as needed)
+TZ="America/New_York"  # Example: Change to your timezone
+CUPSADMIN="admin"
+CUPSPASSWORD="password"
+
+# Install dependencies (if not already installed in the base image)
+# You might want to move this to a separate setup script or Dockerfile stage
+apt-get update -qq && apt-get upgrade -qqy && apt-get install -qqy \
+    apt-utils usbutils cups cups-filters printer-driver-all printer-driver-cups-pdf \
+    printer-driver-foo2zjs foomatic-db-compressed-ppds openprinting-ppds hpijs-ppds \
+    hp-ppd hplip avahi-daemon && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Configure CUPS (if not already configured in the base image)
+sed -i 's/Listen localhost:631/Listen 0.0.0.0:631/' /etc/cups/cupsd.conf
+sed -i 's/Browsing Off/Browsing On/' /etc/cups/cupsd.conf
+sed -i 's/<Location \/>/<Location \/>\n    Allow All/' /etc/cups/cupsd.conf
+sed -i 's/<Location \/admin>/<Location \/admin>\n    Allow All\n    Require user @SYSTEM/' /etc/cups/cupsd.conf
+sed -i 's/<Location \/admin\/conf>/<Location \/admin\/conf>\n    Allow All/' /etc/cups/cupsd.conf
+echo "ServerAlias *" >> /etc/cups/cupsd.conf
+echo "DefaultEncryption Never" >> /etc/cups/cupsd.conf
+
+
+# User and password setup (check if user exists first)
+if ! id "$CUPSADMIN" > /dev/null 2>&1; then  # Improved check
+    useradd -r -G lpadmin -M "$CUPSADMIN"
+    echo "$CUPSADMIN:$CUPSPASSWORD" | chpasswd
+    ln -fs /usr/share/zoneinfo/"$TZ" /etc/localtime
+    dpkg-reconfigure --frontend noninteractive tzdata
+fi
+
+
+# Start Avahi daemon (if needed for printer discovery)
+if ! systemctl is-active avahi-daemon; then
+    systemctl start avahi-daemon
+fi
+
+# Start CUPS
+cupsd -f  # Run in foreground for s6
+
+# Keep the container running (important for s6)
+while true; do sleep 3600; done # Or use s6's own mechanisms for process supervision
