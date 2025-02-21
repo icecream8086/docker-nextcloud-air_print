@@ -61,7 +61,6 @@ RUN \
     samba \
     inotify-tools \
     ghostscript \               # PostScript 支持
-    echo "**** 配置 CUPS ****" && \
     mkdir -p /etc/cups/ppd && \
     # 允许 root 用户管理 CUPS
     echo "root" >> /etc/cups/cupsd.conf && \
