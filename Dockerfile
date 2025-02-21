@@ -105,7 +105,6 @@ RUN \
 
 # copy local files
 COPY root/ /
-RUN chmod +x /etc/s6-overlay/s6-rc.d/init-cups-config/run
 
 # ports and volumes
 EXPOSE 80 443 631

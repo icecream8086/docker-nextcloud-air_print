@@ -1,4 +1,33 @@
 #!/usr/bin/with-contenv sh
 
-rc-service cups start
-rc-service cupsd start
+# 创建必要目录
+mkdir -p \
+    /var/run/cups \
+    /etc/cups/ssl
+
+# 设置CUPS配置文件路径
+if [ ! -f /etc/cups/cupsd.conf ]; then
+    cp -rn /etc/cups/cupsd.conf.default /etc/cups/cupsd.conf
+fi
+
+# 修复权限
+chown -R root:lpadmin /etc/cups
+chmod 0755 /var/run/cups
+
+# 启动CUPS服务
+rc-service cupsd start 2>/dev/null
+rc-service cupsd restart 2>/dev/null
+
+# 健康检查等待启动
+while ! nc -z localhost 631; do
+    sleep 1
+done
+
+# 持久化打印机配置
+if [ -d /config/printers ]; then
+    cp -rf /config/printers/* /etc/cups/
+    lpadmin -E -p $(ls /etc/cups/ppd/*.ppd | sed 's/.*\///;s/.ppd//')
+fi
+
+# 后台维护进程
+crond -b
