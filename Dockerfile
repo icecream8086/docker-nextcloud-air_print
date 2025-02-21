@@ -149,40 +149,7 @@ RUN \
   echo "**** cleanup ****" && \
   rm -rf \
     /tmp/*
-
-# CUPS 权限处理核心逻辑
-echo "**** 配置CUPS权限 ****" && \
-mkdir -p \
-    /var/run/cups \
-    /etc/cups/ssl \
-    /config/printers/ppd && \
-
-# 权限继承处理
-if [ -d /config/printers ]; then
-    rsync -rtD --exclude '*.tmp' /config/printers/ /etc/cups/
-fi && \
-
-# 关键目录权限设置
-chown -R root:lpadmin /etc/cups && \
-chmod 0750 /var/run/cups && \
-chmod 0700 /etc/cups/ssl && \
-chmod 0644 /etc/cups/cupsd.conf* && \
-
-# PPD文件特殊权限处理
-find /etc/cups/ppd -name "*.ppd" -exec chmod 0664 {} \; && \
-find /etc/cups/ppd -name "*.ppd" -exec chown root:lpadmin {} \; && \
-
-# 运行时目录权限修复
-( [ -d /var/spool/cups ] || mkdir -p /var/spool/cups ) && \
-chown root:lp /var/spool/cups && \
-chmod 1770 /var/spool/cups && \
-
-# 容器用户权限兼容处理
-if id -u abc >/dev/null 2>&1; then
-    usermod -aG lpadmin abc && \
-    find /config/printers -exec chown abc:abc {} \;
-fi
-
+    
 # copy local files
 COPY root/ /
 
