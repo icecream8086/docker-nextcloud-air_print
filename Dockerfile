@@ -58,7 +58,6 @@ RUN \
     cups-filters \
     foomatic-db \
     gutenprint \                # 佳能通用驱动支持
-    avahi \
     dbus \
     samba \
     inotify-tools \
