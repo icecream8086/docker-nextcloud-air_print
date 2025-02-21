@@ -57,6 +57,12 @@ RUN \
     cups-client \
     cups-filters \
     foomatic-db \
+    dbus \
+    samba \
+    inotify-tools \
+    ghostscript \               # PostScript 支持
+    gnutls-utils \              # IPP over HTTPS
+    jbig2dec && \               # 图像解码
     && \
     echo "**** 配置 CUPS ****" && \
     mkdir -p /etc/cups/ppd && \
