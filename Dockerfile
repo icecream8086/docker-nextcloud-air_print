@@ -54,7 +54,29 @@ RUN \
     util-linux \
     sudo \
     cups \
-    cups-client && \
+    cups-client \
+    cups-filters \
+    foomatic-db \
+    gutenprint \                # 佳能通用驱动支持
+    avahi \
+    dbus \
+    samba \
+    inotify-tools \
+    hplip \                     # 可选其他驱动
+    ghostscript \               # PostScript 支持
+    gnutls-utils \              # IPP over HTTPS
+    jbig2dec && \               # 图像解码
+    && \
+    echo "**** 配置 CUPS ****" && \
+    mkdir -p /etc/cups/ppd && \
+    # 允许 root 用户管理 CUPS
+    echo "root" >> /etc/cups/cupsd.conf && \
+    # 调整权限
+    chown -R root:lp /etc/cups && \
+    chmod 755 /etc/cups && \
+    # 共享目录
+    mkdir -p /shared-prints && \
+    chmod 777 /shared-prints && \
   echo "**** configure php-fpm to pass env vars ****" && \
   sed -E -i 's/^;?clear_env ?=.*$/clear_env = no/g' /etc/php83/php-fpm.d/www.conf && \
   grep -qxF 'clear_env = no' /etc/php83/php-fpm.d/www.conf || echo 'clear_env = no' >> /etc/php83/php-fpm.d/www.conf && \
@@ -111,3 +133,4 @@ EXPOSE 80 443 631
 VOLUME /config
 VOLUME /var/spool/cups
 VOLUME /etc/cups
+VOLUME /shared-prints  
