@@ -1,5 +1,4 @@
-# run 文件内容
+# run文件内容
 #!/command/with-contenv bash
-# 示例：初始化CUPS打印配置
 lpadmin -p AirPrint -v socket://printer.local:9100 -E
-echo "CUPS配置完成"
+lpstat -v  # 验证打印机
