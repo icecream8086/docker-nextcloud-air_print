@@ -57,14 +57,8 @@ RUN \
     cups-client \
     cups-filters \
     foomatic-db \
-    gutenprint \                # 佳能通用驱动支持
     dbus \
     samba \
-    inotify-tools \
-    hplip \                     # 可选其他驱动
-    ghostscript \               # PostScript 支持
-    gnutls-utils \              # IPP over HTTPS
-    jbig2dec && \               # 图像解码
     && \
     echo "**** 配置 CUPS ****" && \
     mkdir -p /etc/cups/ppd && \
