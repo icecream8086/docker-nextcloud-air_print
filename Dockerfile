@@ -61,7 +61,6 @@ RUN \
     samba \
     inotify-tools \
     ghostscript \               # PostScript 支持
-    jbig2dec && \               # 图像解码
     && \
     echo "**** 配置 CUPS ****" && \
     mkdir -p /etc/cups/ppd && \
