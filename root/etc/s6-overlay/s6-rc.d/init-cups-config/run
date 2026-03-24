@@ -1,0 +1,34 @@
+#!/bin/ash
+
+# 设置环境变量
+export TZ="America/New_York"
+CUPSADMIN="admin"
+CUPSPASSWORD="password"
+
+# 配置CUPS
+sed -i 's/Listen localhost:631/Listen 0.0.0.0:631/' /etc/cups/cupsd.conf
+sed -i '/<Location \/>/a \ \ Allow All' /etc/cups/cupsd.conf
+sed -i '/<Location \/admin>/a \ \ Allow All\n  Require user @SYSTEM' /etc/cups/cupsd.conf
+echo -e "ServerAlias *\nDefaultEncryption Never" >> /etc/cups/cupsd.conf
+
+# 创建CUPS管理员用户
+if ! id "$CUPSADMIN" &>/dev/null; then
+    adduser -S -D -H -G lpadmin "$CUPSADMIN"
+    echo "$CUPSADMIN:$CUPSPASSWORD" | chpasswd
+    ln -sf "/usr/share/zoneinfo/$TZ" /etc/localtime
+fi
+
+# s6初始化阶段权限设置
+mkdir -p /etc/s6-overlay/s6-rc.d/init-stage
+cat > /etc/s6-overlay/s6-rc.d/init-stage/00-fix-permissions <<EOF
+#!/command/with-contenv sh
+chown -R abc:abc \\
+    /app/www/public \\
+    /config/www/nextcloud
+EOF
+chmod +x /etc/s6-overlay/s6-rc.d/init-stage/00-fix-permissions
+
+# 创建s6服务目录
+mkdir -p /etc/s6-overlay/s6-rc.d/cupsd
+echo -e "#!/command/with-contenv sh\nexec cupsd -f" > /etc/s6-overlay/s6-rc.d/cupsd/run
+chmod +x /etc/s6-overlay/s6-rc.d/cupsd/run
